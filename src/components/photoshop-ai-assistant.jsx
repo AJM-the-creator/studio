@@ -55,10 +55,10 @@ const SELECTION_AREA_JSON = JSON.stringify({
   unit: "pixels",
 });
 
-const readFileAsDataUri = (file: File): Promise<string> => {
+const readFileAsDataUri = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
+    reader.onload = () => resolve(reader.result);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
@@ -67,12 +67,10 @@ const readFileAsDataUri = (file: File): Promise<string> => {
 export function PhotoshopAiAssistant() {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = React.useState(false);
-  const [generatedImage, setGeneratedImage] = React.useState<string | null>(
-    null
-  );
-  const [imagePreview, setImagePreview] = React.useState<string | null>(null);
+  const [generatedImage, setGeneratedImage] = React.useState(null);
+  const [imagePreview, setImagePreview] = React.useState(null);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       prompt: "",
@@ -85,12 +83,12 @@ export function PhotoshopAiAssistant() {
   const useColorValue = form.watch("useColor");
   const fileRef = form.register("referenceImage");
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (event) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
     } else {
@@ -98,11 +96,11 @@ export function PhotoshopAiAssistant() {
     }
   };
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values) {
     setIsGenerating(true);
     setGeneratedImage(null);
     try {
-      let referenceImageDataUri: string | undefined = undefined;
+      let referenceImageDataUri = undefined;
       if (values.referenceImage && values.referenceImage.length > 0) {
         const file = values.referenceImage[0];
         if (file instanceof File) {
